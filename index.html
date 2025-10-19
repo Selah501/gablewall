@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gable End Wall PLANNER</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2196F3, #21CBF3);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .unit-selector-container {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .unit-selector {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: none;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                padding: 15px;
+            }
+            .unit-selector-container {
+                position: static;
+                transform: none;
+                margin-top: 10px;
+            }
+            .header h1 {
+                font-size: 1.5em;
+            }
+        }
+
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .input-panel {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #495057;
+            font-size: 1.1rem;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #2196F3;
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+        }
+
+        .input-group .unit {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-left: 5px;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+
+        .dimensions-panel {
+            background: #fff;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .dimensions-panel h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            border-bottom: 2px solid #2196F3;
+            padding-bottom: 10px;
+        }
+
+        .dimension-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .dimension-item:last-child {
+            border-bottom: none;
+        }
+
+        .dimension-label {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .dimension-value {
+            font-weight: 700;
+            color: #2196F3;
+            font-size: 1.1rem;
+        }
+
+        .canvas-container {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            overflow: auto;
+            max-height: 80vh;
+        }
+
+        .canvas-container h3 {
+            color: #495057;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        canvas {
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            max-width: 100%;
+            height: auto;
+            background: white;
+        }
+
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #2196F3;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .legend {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 2px solid #000;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border: 1px solid #f5c6cb;
+            display: none;
+        }
+
+        /* 모바일 반응형 */
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .input-panel, .canvas-container {
+                padding: 20px;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 200px;
+            }
+
+            .legend {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .main-content {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏗️ Gable End Wall PLANNER</h1>
+        </div>
+
+        <div class="main-content">
+            <div class="input-panel">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                    <h3 style="color: #495057; margin: 0;">📐 입력 조건</h3>
+                    <div style="display: flex; gap: 15px; align-items: center;">
+                        <label style="display: flex; align-items: center; gap: 5px; font-size: 14px; color: #495057;">
+                            <input type="radio" id="unitMm" name="unit" value="mm" checked>
+                            mm
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 5px; font-size: 14px; color: #495057;">
+                            <input type="radio" id="unitInch" name="unit" value="inch">
+                            inch
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="siteName">현장 <span style="color: #666; font-size: 0.9em;">(선택 사항)</span></label>
+                    <input type="text" id="siteName" value="" placeholder="현장명 입력">
+                </div>
+
+                <div class="input-group">
+                    <label for="sectionName">섹션 <span style="color: #666; font-size: 0.9em;">(선택 사항)</span></label>
+                    <input type="text" id="sectionName" value="" placeholder="섹션명 입력">
+                </div>
+
+                <div class="input-group">
+                    <label for="baseLength">스판 (Span)</label>
+                    <input type="number" id="baseLength" value="4800" min="100" max="10000" step="100">
+                    <span class="unit" id="spanUnit">mm</span>
+                </div>
+
+                <div class="input-group">
+                    <label for="angle">각도 (θ)</label>
+                    <input type="number" id="angle" value="25" min="10" max="80" step="1">
+                    <span class="unit">도</span>
+                </div>
+
+                <div class="input-group">
+                    <label for="studSpec">스터드 규격</label>
+                    <select id="studSpec" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                        <option value="2x4">2x4</option>
+                        <option value="2x6" selected>2x6</option>
+                        <option value="2x8">2x8</option>
+                        <option value="2x10">2x10</option>
+                        <option value="2x12">2x12</option>
+                    </select>
+                    <div style="display: flex; gap: 20px; margin-top: 8px;">
+                        <label style="display: flex; align-items: center; gap: 5px; font-size: 0.85em; color: #666;">
+                            <input type="radio" id="studSpacing16" name="studSpacing" value="16" checked>
+                            16" on center
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 5px; font-size: 0.85em; color: #666;">
+                            <input type="radio" id="studSpacing48" name="studSpacing" value="24">
+                            24" on center
+                        </label>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="ridgeSpec">릿지 규격</label>
+                    <select id="ridgeSpec" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                        <option value="2x8">2x8</option>
+                        <option value="2x10" selected>2x10</option>
+                        <option value="2x12">2x12</option>
+                    </select>
+                </div>
+
+
+                <div class="input-group">
+                    <label>합판방향</label>
+                    <div style="display: flex; gap: 20px; margin-top: 8px;">
+                        <label style="display: flex; align-items: center; gap: 5px;">
+                            <input type="radio" id="directionRight" name="direction" value="right" checked>
+                            <span style="font-size: 0.9em;">우측으로 진행</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 5px;">
+                            <input type="radio" id="directionLeft" name="direction" value="left">
+                            <span style="font-size: 0.9em;">좌측으로</span>
+                        </label>
+                    </div>
+                </div>
+
+                <button class="calculate-btn" onclick="calculateTriangle()">
+                    🧮 계산하기
+                </button>
+
+                <div class="error-message" id="errorMessage"></div>
+
+                <div class="dimensions-panel" id="dimensionsPanel" style="display: none;">
+                    <h3>📊 계산된 치수</h3>
+                    <div id="dimensionList"></div>
+                </div>
+
+                <div class="dimensions-panel" id="planSummaryPanel" style="display: none; margin-top: 20px;">
+                    <h3>📝 계획 요약</h3>
+                    <div id="planSummary" style="background: #f8f9fa; padding: 15px; border-radius: 8px; font-size: 14px; line-height: 1.6;"></div>
+                </div>
+            </div>
+
+            <div class="canvas-container">
+                <h3>🎨 삼각형 시각화</h3>
+                <canvas id="triangleCanvas" width="600" height="400"></canvas>
+                
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="downloadImage()">
+                        💾 이미지 다운로드
+                    </button>
+                    <button class="btn btn-success" onclick="resetCanvas()">
+                        🔄 초기화
+                    </button>
+                </div>
+
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #f5f5f5; border: 1px solid #666;"></div>
+                        <span>38mm 직사각형 (a, b, c)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let canvas, ctx;
+        let triangleData = {};
+
+        function initCanvas() {
+            canvas = document.getElementById('triangleCanvas');
+            ctx = canvas.getContext('2d');
+            
+            // 기본 캔버스 크기 설정
+            canvas.width = 600;
+            canvas.height = 400;
+            canvas.style.width = '600px';
+            canvas.style.height = '400px';
+            
+            // 배경 초기화
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function calculateTriangle() {
+            // 입력값 가져오기
+            const siteName = document.getElementById('siteName').value;
+            const sectionName = document.getElementById('sectionName').value;
+            let baseLength = parseFloat(document.getElementById('baseLength').value);
+            const angleDegrees = parseFloat(document.getElementById('angle').value);
+            const selectedUnit = document.querySelector('input[name="unit"]:checked').value;
+            const studSpec = document.getElementById('studSpec').value;
+            const ridgeSpec = document.getElementById('ridgeSpec').value;
+            const studSpacing = document.querySelector('input[name="studSpacing"]:checked').value;
+            const direction = document.querySelector('input[name="direction"]:checked').value;
+            const rectangleWidth = 38; // 38mm 고정값
+
+            // 입력값 검증
+            if (!baseLength || baseLength <= 0) {
+                showError('스판은 0보다 큰 값을 입력해주세요.');
+                return;
+            }
+            if (!angleDegrees || angleDegrees <= 0 || angleDegrees >= 90) {
+                showError('각도는 0도와 90도 사이의 값을 입력해주세요.');
+                return;
+            }
+            // rectangleWidth는 38mm 고정값이므로 검증 불필요
+
+            hideError();
+
+            // 단위 변환 (inch를 mm로)
+            let displayBaseLength = baseLength;
+            let unitText = "mm";
+            
+            if (selectedUnit === "inch") {
+                baseLength *= 25.4; // Convert to mm for internal calculation
+                displayBaseLength = baseLength / 25.4; // Keep original for display
+                unitText = "inch";
+            }
+
+            // 각도를 라디안으로 변환
+            const angleRadians = angleDegrees * Math.PI / 180;
+
+            // 이등변삼각형의 높이 계산
+            const halfBase = baseLength / 2;
+            const height = halfBase * Math.tan(angleRadians);
+
+            // 각 변의 길이 계산
+            const sideLength = Math.sqrt(halfBase * halfBase + height * height);
+
+            // 치수 정보 저장
+            triangleData = {
+                siteName: siteName,
+                sectionName: sectionName,
+                base: baseLength,
+                height: height,
+                sideLength: sideLength,
+                angle: angleDegrees,
+                rectangleWidth: rectangleWidth,
+                unit: selectedUnit,
+                studSpec: studSpec,
+                ridgeSpec: ridgeSpec,
+                studSpacing: studSpacing,
+                direction: direction
+            };
+
+            // 치수 표시
+            displayDimensions();
+
+            // 계획 요약 표시
+            displayPlanSummary();
+
+            // 삼각형 그리기
+            drawTriangle();
+        }
+
+        function drawTriangle() {
+            if (!triangleData.base) return;
+
+            const { base, height, rectangleWidth } = triangleData;
+            
+            // 스케일 팩터 계산 (화면에 맞게 조정)
+            const maxWidth = 800;
+            const maxHeight = 600;
+            const scaleX = maxWidth / base;
+            const scaleY = maxHeight / height;
+            const scale = Math.min(scaleX, scaleY) * 0.8;
+
+            // 캔버스 크기 설정
+            const canvasWidth = Math.min(maxWidth, base * scale + 100);
+            const canvasHeight = Math.min(maxHeight, height * scale + 100);
+            
+            canvas.width = canvasWidth;
+            canvas.height = canvasHeight;
+            canvas.style.width = canvasWidth + 'px';
+            canvas.style.height = canvasHeight + 'px';
+            
+            // 배경 초기화
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+            
+            // 꼭짓점 좌표 계산 (화면 중앙에 배치)
+            const centerX = canvasWidth / 2;
+            const centerY = canvasHeight / 2;
+            
+            const A = {
+                x: centerX - (base / 2) * scale,
+                y: centerY + (height / 2) * scale
+            };
+            const B = {
+                x: centerX + (base / 2) * scale,
+                y: centerY + (height / 2) * scale
+            };
+            const C = {
+                x: centerX,
+                y: centerY - (height / 2) * scale
+            };
+
+            // 원본 삼각형 그리기 (참고용)
+            ctx.strokeStyle = '#ddd';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([8, 4]);
+            ctx.beginPath();
+            ctx.moveTo(A.x, A.y);
+            ctx.lineTo(B.x, B.y);
+            ctx.lineTo(C.x, C.y);
+            ctx.closePath();
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // 각 변을 직사각형으로 그리기 (겹침 방지)
+            drawRectangleWithOverlapPrevention(A, B, rectangleWidth * scale, '#e0e0e0', 'b', 'bottom');
+            drawRectangleWithOverlapPrevention(A, C, rectangleWidth * scale, '#e0e0e0', 'a', 'left');
+            drawRectangleWithOverlapPrevention(B, C, rectangleWidth * scale, '#e0e0e0', 'c', 'right');
+
+            // 각도 표시
+            drawAngle(A, B, C, triangleData.angle);
+        }
+
+        function drawRectangleWithOverlapPrevention(start, end, width, color, label, labelPosition) {
+            // 꼭짓점에서 겹침을 방지하기 위해 직사각형의 길이를 조정
+            const dx = end.x - start.x;
+            const dy = end.y - start.y;
+            const length = Math.sqrt(dx * dx + dy * dy);
+            
+            if (length === 0) return;
+
+            // 단위 벡터
+            const ux = dx / length;
+            const uy = dy / length;
+            
+            // 겹침 방지를 위한 조정된 시작점과 끝점
+            const overlapOffset = width / 2; // 겹침 방지 오프셋
+            const adjustedStart = {
+                x: start.x + ux * overlapOffset,
+                y: start.y + uy * overlapOffset
+            };
+            const adjustedEnd = {
+                x: end.x - ux * overlapOffset,
+                y: end.y - uy * overlapOffset
+            };
+            
+            // 조정된 직사각형 그리기
+            drawRectangleAlongLine(adjustedStart, adjustedEnd, width, color, label, labelPosition);
+        }
+
+        function drawRectangleAlongLine(start, end, width, color, label, labelPosition) {
+            // 선의 방향 벡터
+            const dx = end.x - start.x;
+            const dy = end.y - start.y;
+            const length = Math.sqrt(dx * dx + dy * dy);
+            
+            if (length === 0) return;
+
+            // 단위 벡터
+            const ux = dx / length;
+            const uy = dy / length;
+            
+            // 수직 벡터 (90도 회전)
+            const perpX = -uy;
+            const perpY = ux;
+            
+            // 직사각형의 네 모서리 계산
+            const halfWidth = width / 2;
+            const p1 = {
+                x: start.x + perpX * halfWidth,
+                y: start.y + perpY * halfWidth
+            };
+            const p2 = {
+                x: end.x + perpX * halfWidth,
+                y: end.y + perpY * halfWidth
+            };
+            const p3 = {
+                x: end.x - perpX * halfWidth,
+                y: end.y - perpY * halfWidth
+            };
+            const p4 = {
+                x: start.x - perpX * halfWidth,
+                y: start.y - perpY * halfWidth
+            };
+            
+            // 직사각형 그리기 (옅은 회색)
+            ctx.fillStyle = '#f5f5f5';
+            ctx.globalAlpha = 0.8;
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.lineTo(p3.x, p3.y);
+            ctx.lineTo(p4.x, p4.y);
+            ctx.closePath();
+            ctx.fill();
+            
+            // 테두리 그리기 (38mm 선이 보이도록)
+            ctx.globalAlpha = 1;
+            ctx.strokeStyle = '#666';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            
+            // 라벨을 바깥쪽 중앙에 배치
+            const centerX = (start.x + end.x) / 2;
+            const centerY = (start.y + end.y) / 2;
+            
+            // 라벨 위치 계산 (바깥쪽으로)
+            let labelX = centerX;
+            let labelY = centerY;
+            const labelOffset = halfWidth + 30; // 직사각형 바깥쪽으로 30px
+            
+            switch(labelPosition) {
+                case 'bottom':
+                    labelY = centerY + labelOffset;
+                    break;
+                case 'left':
+                    labelX = centerX - labelOffset * uy;
+                    labelY = centerY + labelOffset * ux;
+                    break;
+                case 'right':
+                    labelX = centerX + labelOffset * uy;
+                    labelY = centerY - labelOffset * ux;
+                    break;
+            }
+            
+            // 반응형 폰트 크기 계산 (캔버스 크기에 비례)
+            const canvasWidth = canvas.width;
+            const canvasHeight = canvas.height;
+            const baseFontSize = Math.max(12, Math.min(24, Math.min(canvasWidth, canvasHeight) / 30));
+            
+            // 라벨 배경 (가독성 향상)
+            const labelPadding = baseFontSize * 0.8;
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+            ctx.fillRect(labelX - labelPadding, labelY - labelPadding/2, labelPadding * 2, labelPadding);
+            
+            // 라벨 텍스트
+            ctx.fillStyle = '#000';
+            ctx.font = `bold ${baseFontSize}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(label, labelX, labelY);
+        }
+
+
+        function drawAngle(A, B, C, angleDegrees) {
+            // 각도 표시
+            const angleX = (A.x + B.x + C.x) / 3;
+            const angleY = (A.y + B.y + C.y) / 3;
+            
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(`${angleDegrees}°`, angleX, angleY);
+        }
+
+        function displayDimensions() {
+            const panel = document.getElementById('dimensionsPanel');
+            const list = document.getElementById('dimensionList');
+            
+            const { siteName, sectionName, base, height, sideLength, angle, rectangleWidth, unit, studSpec, ridgeSpec, studSpacing, direction } = triangleData;
+            
+            const unitText = unit === "inch" ? "inch" : "mm";
+            const displayBase = unit === "inch" ? (base / 25.4).toFixed(2) : base.toFixed(0);
+            const displayHeight = unit === "inch" ? (height / 25.4).toFixed(2) : height.toFixed(2);
+            const displaySideLength = unit === "inch" ? (sideLength / 25.4).toFixed(2) : sideLength.toFixed(2);
+            const displayRectangleWidth = unit === "inch" ? (rectangleWidth / 25.4).toFixed(2) : rectangleWidth.toFixed(0);
+            
+            list.innerHTML = `
+                <div class="dimension-item">
+                    <span class="dimension-label">현장</span>
+                    <span class="dimension-value">${siteName || "미입력"}</span>
+                </div>
+                <div class="dimension-item">
+                    <span class="dimension-label">섹션</span>
+                    <span class="dimension-value">${sectionName || "미입력"}</span>
+                </div>
+                <div class="dimension-item">
+                    <span class="dimension-label">스판 (Span)</span>
+                    <span class="dimension-value">${displayBase} ${unitText}</span>
+                </div>
+                <div class="dimension-item">
+                    <span class="dimension-label">높이</span>
+                    <span class="dimension-value">${displayHeight} ${unitText}</span>
+                </div>
+                <div class="dimension-item">
+                    <span class="dimension-label">빗변 길이 (AC, BC)</span>
+                    <span class="dimension-value">${displaySideLength} ${unitText}</span>
+                </div>
+                <div class="dimension-item">
+                    <span class="dimension-label">각도 (θ)</span>
+                    <span class="dimension-value">${angle.toFixed(1)}°</span>
+                </div>
+                <div class="dimension-item">
+                    <span class="dimension-label">스터드 규격</span>
+                    <span class="dimension-value">${studSpec}</span>
+                </div>
+                <div class="dimension-item">
+                    <span class="dimension-label">릿지 규격</span>
+                    <span class="dimension-value">${ridgeSpec}</span>
+                </div>
+                <div class="dimension-item">
+                    <span class="dimension-label">스터드 간격</span>
+                    <span class="dimension-value">${studSpacing} inch on center</span>
+                </div>
+                <div class="dimension-item">
+                    <span class="dimension-label">집단 방향</span>
+                    <span class="dimension-value">${direction === "right" ? "우측으로 진행" : "좌측으로"}</span>
+                </div>
+                <div class="dimension-item">
+                    <span class="dimension-label">직사각형 폭</span>
+                    <span class="dimension-value">${displayRectangleWidth} ${unitText}</span>
+                </div>
+            `;
+            
+            panel.style.display = 'block';
+        }
+
+        function displayPlanSummary() {
+            const panel = document.getElementById('planSummaryPanel');
+            const summary = document.getElementById('planSummary');
+            
+            const { siteName, sectionName, base, angle, unit, studSpec, ridgeSpec, studSpacing, direction } = triangleData;
+            
+            const unitText = unit === "inch" ? "inch" : "mm";
+            const displayBase = unit === "inch" ? (base / 25.4).toFixed(2) : base.toFixed(0);
+            const directionText = direction === "right" ? "우측으로" : "좌측으로";
+            
+            const summaryText = `'${siteName || "미입력"}' '${sectionName || "미입력"}'의 Gable End WALL을<br>
+각도 ${angle}°, ${displayBase}${unitText} 스판으로, ${studSpec} 부재 사용하여<br>
+${studSpacing} inch on center의 계획을 작성합니다.<br>
+더블릿지 ${ridgeSpec} 적용 합니다. 진행하시겠습니까?<br>
+구조합한은 ${directionText} 방향`;
+            
+            summary.innerHTML = summaryText;
+            panel.style.display = 'block';
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function hideError() {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.style.display = 'none';
+        }
+
+        function downloadImage() {
+            if (!triangleData.base) {
+                alert('먼저 삼각형을 계산해주세요.');
+                return;
+            }
+
+            const link = document.createElement('a');
+            link.download = `triangle_${triangleData.base}mm_${triangleData.angle}deg.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        function resetCanvas() {
+            initCanvas();
+            document.getElementById('dimensionsPanel').style.display = 'none';
+            hideError();
+        }
+
+        // 페이지 로드 시 초기화
+        window.onload = function() {
+            initCanvas();
+            // 기본값으로 삼각형 그리기
+            setTimeout(() => {
+                calculateTriangle();
+            }, 100);
+
+            // 단위 선택 변경 시 스판 단위 업데이트
+            document.querySelectorAll('input[name="unit"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const unit = this.value;
+                    document.getElementById('spanUnit').textContent = unit;
+                    calculateTriangle(); // 단위 변경 시 재계산
+                });
+            });
+        };
+
+        // 반응형 캔버스 크기 조정
+        window.addEventListener('resize', function() {
+            if (triangleData.base) {
+                drawTriangle();
+            }
+        });
+    </script>
+</body>
+</html>
